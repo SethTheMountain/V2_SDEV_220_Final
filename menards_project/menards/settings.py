@@ -4,6 +4,11 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Security settings
+SECRET_KEY = os.environ.get('mf&o!vs=svjb8h3in874$@ms-!s7y5gwvjco4l)0ld*74&dxms', 'django-insecure-@mf&o!vs=svjb8h3in874$@ms-!s7y5gwvjco4l)0ld*74&dxms@')  # Replace with a secure key
+DEBUG = True
+ALLOWED_HOSTS = []
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -25,7 +30,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'menards.urls'  # Added to fix the error
+ROOT_URLCONF = 'menards.urls'
 
 TEMPLATES = [
     {
@@ -43,6 +48,8 @@ TEMPLATES = [
     },
 ]
 
+WSGI_APPLICATION = 'menards.wsgi.application'
+
 # Database
 DATABASES = {
     'default': {
@@ -51,16 +58,49 @@ DATABASES = {
     }
 }
 
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Timezone settings
-USE_TZ = True
-TIME_ZONE = 'UTC'
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Security settings
-DEBUG = True
-ALLOWED_HOSTS = []
-SECRET_KEY = 'your-secret-key'  # Replace with a secure key (generate if missing)
+# Logging configuration for debugging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}

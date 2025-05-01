@@ -19,39 +19,59 @@
         {% endif %}
         <form method="GET" class="mb-3">
             <label for="search" class="sr-only">Search employees:</label>
-            <input type="text" id="search" name="search" value="{{ query }}" placeholder="Search by name or ID..." class="form-control" style="max-width: 300px; display: inline-block;">
+            <input type="text" id="search" name="search" value="{{ query }}" placeholder="Search by name or ID..." class="form-control" style="max-width: 300px; display: inline-block;" aria-label="Search employees by name or ID">
             <button type="submit" style="margin-left: 10px;">Search</button>
         </form>
+        <div class="mb-3">
+            <label for="departmentFilter">Filter by Department:</label>
+            <select id="departmentFilter" onchange="filterEmployees()" aria-label="Filter employees by department">
+                <option value="">All Departments</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Plumbing">Plumbing</option>
+                <option value="Front-Desk">Front-Desk</option>
+                <option value="Wall Coverings">Wall Coverings</option>
+                <option value="Flooring">Flooring</option>
+                <option value="Hardware">Hardware</option>
+                <option value="Receiving">Receiving</option>
+                <option value="Building Materials">Building Materials</option>
+            </select>
+            <label for="hoursFilter" style="margin-left: 20px;">Min Hours/Week:</label>
+            <input type="number" id="hoursFilter" min="0" step="0.1" placeholder="e.g., 20" style="max-width: 100px;" oninput="debounceFilter()" aria-label="Filter employees by minimum hours per week">
+        </div>
         {% if employees %}
             <div class="table-container">
-                <table class="employee-table">
+                <table class="employee-table" aria-label="Employee management table">
                     <thead>
                         <tr>
-                            <th class="col-employee-id">Employee ID</th>
-                            <th class="col-department">Department</th>
-                            <th class="col-position">Position</th>
-                            <th class="col-hours">Hours/Week</th>
-                            <th class="col-salary">Hourly Salary</th>
-                            <th class="col-created-at">Created At</th>
-                            <th class="col-actions">Actions</th>
+                            <th class="col-employee-id" scope="col">Employee ID</th>
+                            <th class="col-department" scope="col">Department</th>
+                            <th class="col-position" scope="col">Position</th>
+                            <th class="col-hours" scope="col">Hours/Week</th>
+                            <th class="col-salary" scope="col">Hourly Salary</th>
+                            <th class="col-created-at" scope="col">Created At</th>
+                            <th class="col-actions" scope="col">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="employeeTableBody">
                         {% for employee in employees %}
-                            <tr>
-                                <td>{{ employee.employee_id }}</td>
-                                <td>{{ employee.department }}</td>
-                                <td>{{ employee.position }}</td>
-                                <td class="col-hours">{{ employee.hours_per_week }}</td>
-                                <td class="col-salary">${{ employee.hourly_salary }}</td>
-                                <td>{{ employee.created_at|date:'Y-m-d H:i:s' }}</td>
-                                <td class="col-actions">
-                                    <div class="action-buttons">
-                                        <button class="edit-btn" data-url="{% url 'new_edit_employee' employee.id %}">E</button>
-                                        <button class="delete-btn" data-url="{% url 'new_delete_employee' employee.id %}">D</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            {% if employee.id %}
+                                <tr>
+                                    <td>{{ employee.employee_id|default:"N/A" }}</td>
+                                    <td>{{ employee.department|default:"N/A" }}</td>
+                                    <td>{{ employee.position|default:"N/A" }}</td>
+                                    <td class="col-hours">{{ employee.hours_per_week|default:"0" }}</td>
+                                    <td class="col-salary">${{ employee.hourly_salary|default:"0.00" }}</td>
+                                    <td>{{ employee.created_at|date:'Y-m-d H:i:s'|default:"N/A" }}</td>
+                                    <td class="col-actions">
+                                        <div class="action-buttons">
+                                            <button class="edit-btn" data-url="{% url 'new_edit_employee' employee.id %}" aria-label="Edit employee {{ employee.employee_id|default:'unknown' }}">E</button>
+                                            <button class="delete-btn" data-url="{% url 'new_delete_employee' employee.id %}" aria-label="Delete employee {{ employee.employee_id|default:'unknown' }}">D</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="7">Invalid employee: ID is null</td></tr>
+                            {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
@@ -60,11 +80,105 @@
             <p>No employees found.</p>
         {% endif %}
         <div class="buttons" style="margin-top: 1rem;">
-            <button id="refreshButton" data-url="{% url 'new_admin_dashboard' %}" aria-label="Refresh the admin dashboard">Refresh</button>
-            <button id="backToHomeButton" data-url="{% url 'main' %}" aria-label="Return to the home page">Back to Home</button>
-            <button id="logoutButton" data-url="{% url 'new_admin_logout' %}" aria-label="Logout from admin account">Logout</button>
+            <button id="refreshButton" data-url="{% url 'new_admin_dashboard' %}" aria-label="Refresh">Refresh</button>
+            <button id="backToHomeButton" data-url="{% url 'main' %}" aria-label="Back to Home">Back to Home</button>
+            <button id="logoutButton" data-url="{% url 'new_admin_logout' %}" aria-label="Logout">Logout</button>
         </div>
     </div>
+    <script>
+        const employees = [
+            {% for employee in employees %}
+                {% if employee.id %}
+                    {
+                        id: {{ employee.id|default:0 }},
+                        employee_id: "{{ employee.employee_id|escapejs|default:'N/A' }}",
+                        department: "{{ employee.department|escapejs|default:'N/A' }}",
+                        position: "{{ employee.position|escapejs|default:'N/A' }}",
+                        hours_per_week: {{ employee.hours_per_week|default:0 }},
+                        hourly_salary: {{ employee.hourly_salary|default:0 }},
+                        created_at: "{{ employee.created_at|date:'Y-m-d H:i:s'|escapejs|default:'N/A' }}"
+                    }{% if not forloop.last %},{% endif %}
+                {% endif %}
+            {% endfor %}
+        ];
+
+        let debounceTimeout;
+        function debounceFilter() {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(filterEmployees, 300);
+        }
+
+        function filterEmployees() {
+            const department = document.getElementById('departmentFilter').value;
+            const hoursFilterInput = document.getElementById('hoursFilter').value;
+            const hoursFilter = hoursFilterInput ? parseFloat(hoursFilterInput) : 0;
+            const tableBody = document.getElementById('employeeTableBody');
+
+            if (hoursFilter < 0) {
+                tableBody.innerHTML = '<tr><td colspan="7">Please enter a non-negative hours value.</td></tr>';
+                return;
+            }
+
+            const filteredEmployees = employees.filter(emp => {
+                if (!emp.id || emp.id <= 0) return false;
+                const matchesDepartment = !department || emp.department === department;
+                const matchesHours = emp.hours_per_week >= hoursFilter;
+                return matchesDepartment && matchesHours;
+            });
+
+            tableBody.innerHTML = '';
+            if (filteredEmployees.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7">No employees match the criteria.</td></tr>';
+                return;
+            }
+
+            filteredEmployees.forEach(emp => {
+                const row = document.createElement('tr');
+                // Validate emp.id
+                if (!emp.id || emp.id <= 0) {
+                    console.error('Invalid employee ID:', emp);
+                    return;
+                }
+                const editUrl = getEmployeeUrl('edit', emp.id);
+                const deleteUrl = getEmployeeUrl('delete', emp.id);
+                row.innerHTML = `
+                    <td>${emp.employee_id}</td>
+                    <td>${emp.department}</td>
+                    <td>${emp.position}</td>
+                    <td class="col-hours">${emp.hours_per_week}</td>
+                    <td class="col-salary">$${parseFloat(emp.hourly_salary).toFixed(2)}</td>
+                    <td>${emp.created_at}</td>
+                    <td class="col-actions">
+                        <div class="action-buttons">
+                            <button class="edit-btn" data-url="${editUrl}" aria-label="Edit employee ${emp.employee_id}">E</button>
+                            <button class="delete-btn" data-url="${deleteUrl}" aria-label="Delete employee ${emp.employee_id}">D</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Utility function to generate employee URLs
+        function getEmployeeUrl(action, id) {
+            const basePath = '/new-';
+            const actions = {
+                'edit': 'edit-employee',
+                'delete': 'delete-employee'
+            };
+            if (!actions[action] || !id || id <= 0) {
+                console.error('Invalid action or ID:', action, id);
+                return '#';
+            }
+            return `${basePath}${actions[action]}/${id}/`;
+        }
+
+        window.addEventListener('load', () => {
+            document.getElementById('departmentFilter').value = '';
+            document.getElementById('hoursFilter').value = '';
+            filterEmployees();
+        });
+    </script>
     <script src="{% static 'js/scripts.js' %}" defer></script>
 </body>
 </html>
