@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Admin Dashboard - Menards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <p>Manage registered employees below.</p>
+        {% if messages %}
+            {% for message in messages %}
+                <p class="{% if message.tags == 'success' %}success{% else %}error{% endif %}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        <form method="GET" class="mb-3">
+            <label for="search" class="sr-only">Search employees:</label>
+            <input type="text" id="search" name="search" value="{{ query }}" placeholder="Search by name or ID..." class="form-control" style="max-width: 300px; display: inline-block;">
+            <button type="submit" style="margin-left: 10px;">Search</button>
+        </form>
+        {% if employees %}
+            <div class="table-container">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th class="col-employee-id">Employee ID</th>
+                            <th class="col-department">Department</th>
+                            <th class="col-position">Position</th>
+                            <th class="col-hours">Hours/Week</th>
+                            <th class="col-salary">Hourly Salary</th>
+                            <th class="col-created-at">Created At</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employees %}
+                            <tr>
+                                <td>{{ employee.employee_id }}</td>
+                                <td>{{ employee.department }}</td>
+                                <td>{{ employee.position }}</td>
+                                <td class="col-hours">{{ employee.hours_per_week }}</td>
+                                <td class="col-salary">${{ employee.hourly_salary }}</td>
+                                <td>{{ employee.created_at|date:'Y-m-d H:i:s' }}</td>
+                                <td class="col-actions">
+                                    <div class="action-buttons">
+                                        <button class="edit-btn" data-url="{% url 'new_edit_employee' employee.id %}">E</button>
+                                        <button class="delete-btn" data-url="{% url 'new_delete_employee' employee.id %}">D</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No employees found.</p>
+        {% endif %}
+        <div class="buttons" style="margin-top: 1rem;">
+            <button id="refreshButton" data-url="{% url 'new_admin_dashboard' %}" aria-label="Refresh the admin dashboard">Refresh</button>
+            <button id="backToHomeButton" data-url="{% url 'main' %}" aria-label="Return to the home page">Back to Home</button>
+            <button id="logoutButton" data-url="{% url 'new_admin_logout' %}" aria-label="Logout from admin account">Logout</button>
+        </div>
+    </div>
+    <script src="{% static 'js/scripts.js' %}" defer></script>
+</body>
+</html>

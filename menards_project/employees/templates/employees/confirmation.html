@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Successful - Menards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/scripts.js' %}" defer></script>
+</head>
+<body>
+    <div class="container">
+      <img src="{% static 'images/ray.jpeg' %}" alt="Cartoon Ray Standing With Arms Open" class="logo">
+        <h1>Registration Successful</h1>
+        <p>Thank you for registering with Menards Team Member Register.</p>
+        <div class="buttons">
+            <button id="addAnotherButton" data-url="{% url 'register' %}" aria-label="Register another employee">Add Another Employee</button>
+            <button id="backToHomeButton" data-url="{% url 'main' %}" aria-label="Return to the home page">Back to Home</button>
+        </div>
+    </div>
+</body>
+</html>

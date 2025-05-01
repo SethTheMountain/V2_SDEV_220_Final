@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Delete - Menards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Confirm Delete</h1>
+        <p>Are you sure you want to delete {{ employee.first_name }} {{ employee.last_name }} (ID: {{ employee.employee_id }})?</p>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="delete-btn">Yes, Delete</button>
+        </form>
+        <div class="buttons" style="margin-top: 1rem;">
+            <button data-url="{% url 'new_admin_dashboard' %}">Cancel</button>
+        </div>
+    </div>
+</body>
+</html>
