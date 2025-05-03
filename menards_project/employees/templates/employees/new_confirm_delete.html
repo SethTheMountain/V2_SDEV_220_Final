@@ -7,11 +7,12 @@
     <title>Confirm Delete - Menards</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/scripts.js' %}" defer></script>
 </head>
 <body>
     <div class="container">
         <h1>Confirm Delete</h1>
-        <p>Are you sure you want to delete {{ employee.first_name }} {{ employee.last_name }} (ID: {{ employee.employee_id }})?</p>
+        <p>Are you sure you want to delete {{ employee.first_name|default:"Unknown" }} {{ employee.last_name|default:"Employee" }} (ID: {{ employee.employee_id|default:"N/A" }})?</p>
         <form method="POST">
             {% csrf_token %}
             <button type="submit" class="delete-btn">Yes, Delete</button>

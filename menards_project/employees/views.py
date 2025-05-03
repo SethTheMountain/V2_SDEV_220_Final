@@ -192,7 +192,13 @@ def new_edit_employee(request, employee_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def new_delete_employee(request, employee_id):
-    employee = get_object_or_404(Employee, id=employee_id)
+    try:
+        employee = get_object_or_404(Employee, id=employee_id)
+    except Exception as e:
+        logger.error("Failed to retrieve employee with ID %s: %s", employee_id, str(e))
+        messages.error(request, "Employee not found.")
+        return redirect('new_admin_dashboard')
+
     if request.method == 'POST':
         try:
             employee.delete()
@@ -200,6 +206,13 @@ def new_delete_employee(request, employee_id):
             logger.info("Deleted employee: %s (ID: %s)", employee.employee_id, employee_id)
             return redirect('new_admin_dashboard')
         except Exception as e:
+            logger.error("Delete failed for employee ID %s: %s", employee_id, str(e))
             messages.error(request, f"Error deleting employee: {str(e)}")
-            logger.error("Delete failed: %s", str(e))
-    return render(request, 'employees/new_confirm_delete.html', {'employee': employee})
+            return redirect('new_admin_dashboard')
+
+    try:
+        return render(request, 'employees/new_confirm_delete.html', {'employee': employee})
+    except Exception as e:
+        logger.error("Failed to render delete confirmation for employee ID %s: %s", employee_id, str(e))
+        messages.error(request, "Error loading delete confirmation page.")
+        return redirect('new_admin_dashboard')

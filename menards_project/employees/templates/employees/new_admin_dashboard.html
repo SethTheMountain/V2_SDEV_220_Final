@@ -4,27 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Admin Dashboard - Menards</title>
+    <title>Admin Dashboard - Menards</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/scripts.js' %}" defer></script>
 </head>
 <body>
     <div class="container">
         <h1>Admin Dashboard</h1>
         <p>Manage registered employees below.</p>
+
         {% if messages %}
             {% for message in messages %}
                 <p class="{% if message.tags == 'success' %}success{% else %}error{% endif %}">{{ message }}</p>
             {% endfor %}
         {% endif %}
+
+        <!-- Search Form -->
         <form method="GET" class="mb-3">
             <label for="search" class="sr-only">Search employees:</label>
-            <input type="text" id="search" name="search" value="{{ query }}" placeholder="Search by name or ID..." class="form-control" style="max-width: 300px; display: inline-block;" aria-label="Search employees by name or ID">
+            <input type="text" id="search" name="search" value="{{ query }}" placeholder="Search by name or ID..." 
+                   class="form-control" style="max-width: 300px; display: inline-block;" 
+                   aria-label="Search employees by name or ID">
             <button type="submit" style="margin-left: 10px;">Search</button>
         </form>
+
+        <!-- Filters -->
         <div class="mb-3">
             <label for="departmentFilter">Filter by Department:</label>
-            <select id="departmentFilter" onchange="filterEmployees()" aria-label="Filter employees by department">
+            <select id="departmentFilter" onchange="filterEmployees()" 
+                    aria-label="Filter employees by department">
                 <option value="">All Departments</option>
                 <option value="Electrical">Electrical</option>
                 <option value="Plumbing">Plumbing</option>
@@ -36,8 +45,12 @@
                 <option value="Building Materials">Building Materials</option>
             </select>
             <label for="hoursFilter" style="margin-left: 20px;">Min Hours/Week:</label>
-            <input type="number" id="hoursFilter" min="0" step="0.1" placeholder="e.g., 20" style="max-width: 100px;" oninput="debounceFilter()" aria-label="Filter employees by minimum hours per week">
+            <input type="number" id="hoursFilter" min="0" step="0.1" placeholder="e.g., 20" 
+                   style="max-width: 100px;" oninput="debounceFilter()" 
+                   aria-label="Filter employees by minimum hours per week">
         </div>
+
+        <!-- Employee Table -->
         {% if employees %}
             <div class="table-container">
                 <table class="employee-table" aria-label="Employee management table">
@@ -64,8 +77,10 @@
                                     <td>{{ employee.created_at|date:'Y-m-d H:i:s'|default:"N/A" }}</td>
                                     <td class="col-actions">
                                         <div class="action-buttons">
-                                            <button class="edit-btn" data-url="{% url 'new_edit_employee' employee.id %}" aria-label="Edit employee {{ employee.employee_id|default:'unknown' }}">E</button>
-                                            <button class="delete-btn" data-url="{% url 'new_delete_employee' employee.id %}" aria-label="Delete employee {{ employee.employee_id|default:'unknown' }}">D</button>
+                                            <button class="edit-btn" data-url="{% url 'new_edit_employee' employee.id %}" 
+                                                    aria-label="Edit employee {{ employee.employee_id|default:'unknown' }}">E</button>
+                                            <button class="delete-btn" data-url="{% url 'new_delete_employee' employee.id %}" 
+                                                    aria-label="Delete employee {{ employee.employee_id|default:'unknown' }}">D</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -79,13 +94,20 @@
         {% else %}
             <p>No employees found.</p>
         {% endif %}
+
+        <!-- Action Buttons -->
         <div class="buttons" style="margin-top: 1rem;">
-            <button id="refreshButton" data-url="{% url 'new_admin_dashboard' %}" aria-label="Refresh">Refresh</button>
-            <button id="backToHomeButton" data-url="{% url 'main' %}" aria-label="Back to Home">Back to Home</button>
-            <button id="logoutButton" data-url="{% url 'new_admin_logout' %}" aria-label="Logout">Logout</button>
+            <button id="refreshButton" data-url="{% url 'new_admin_dashboard' %}" 
+                    aria-label="Refresh">Refresh</button>
+            <button id="backToHomeButton" data-url="{% url 'main' %}" 
+                    aria-label="Back to Home">Back to Home</button>
+            <button id="logoutButton" data-url="{% url 'new_admin_logout' %}" 
+                    aria-label="Logout">Logout</button>
         </div>
     </div>
+
     <script>
+        // Employee data for client-side filtering
         const employees = [
             {% for employee in employees %}
                 {% if employee.id %}
@@ -103,6 +125,7 @@
         ];
 
         let debounceTimeout;
+
         function debounceFilter() {
             clearTimeout(debounceTimeout);
             debounceTimeout = setTimeout(filterEmployees, 300);
@@ -134,13 +157,8 @@
 
             filteredEmployees.forEach(emp => {
                 const row = document.createElement('tr');
-                // Validate emp.id
-                if (!emp.id || emp.id <= 0) {
-                    console.error('Invalid employee ID:', emp);
-                    return;
-                }
-                const editUrl = getEmployeeUrl('edit', emp.id);
-                const deleteUrl = getEmployeeUrl('delete', emp.id);
+                const editUrl = `/new-edit-employee/${emp.id}/`;
+                const deleteUrl = `/new-delete-employee/${emp.id}/`;
                 row.innerHTML = `
                     <td>${emp.employee_id}</td>
                     <td>${emp.department}</td>
@@ -150,8 +168,10 @@
                     <td>${emp.created_at}</td>
                     <td class="col-actions">
                         <div class="action-buttons">
-                            <button class="edit-btn" data-url="${editUrl}" aria-label="Edit employee ${emp.employee_id}">E</button>
-                            <button class="delete-btn" data-url="${deleteUrl}" aria-label="Delete employee ${emp.employee_id}">D</button>
+                            <button class="edit-btn" data-url="${editUrl}" 
+                                    aria-label="Edit employee ${emp.employee_id}">E</button>
+                            <button class="delete-btn" data-url="${deleteUrl}" 
+                                    aria-label="Delete employee ${emp.employee_id}">D</button>
                         </div>
                     </td>
                 `;
@@ -159,26 +179,12 @@
             });
         }
 
-        // Utility function to generate employee URLs
-        function getEmployeeUrl(action, id) {
-    const basePath = '/new-';
-    const actions = {
-        'edit': 'edit-employee',
-        'delete': 'delete-employee'
-    };
-    if (!actions[action] || !id || id <= 0) {
-        console.error('Invalid action or ID:', action, id);
-        return '#';
-    }
-    return `${basePath}${actions[action]}/${id}/`;
-}
-
+        // Initialize filters on page load
         window.addEventListener('load', () => {
             document.getElementById('departmentFilter').value = '';
             document.getElementById('hoursFilter').value = '';
             filterEmployees();
         });
     </script>
-    <script src="{% static 'js/scripts.js' %}" defer></script>
 </body>
 </html>
