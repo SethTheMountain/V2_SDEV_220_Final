@@ -161,17 +161,17 @@
 
         // Utility function to generate employee URLs
         function getEmployeeUrl(action, id) {
-            const basePath = '/new-';
-            const actions = {
-                'edit': 'edit-employee',
-                'delete': 'delete-employee'
-            };
-            if (!actions[action] || !id || id <= 0) {
-                console.error('Invalid action or ID:', action, id);
-                return '#';
-            }
-            return `${basePath}${actions[action]}/${id}/`;
-        }
+    const basePath = '/new-';
+    const actions = {
+        'edit': 'edit-employee',
+        'delete': 'delete-employee'
+    };
+    if (!actions[action] || !id || id <= 0) {
+        console.error('Invalid action or ID:', action, id);
+        return '#';
+    }
+    return `${basePath}${actions[action]}/${id}/`;
+}
 
         window.addEventListener('load', () => {
             document.getElementById('departmentFilter').value = '';
